@@ -18,6 +18,7 @@ interface CrosswordGridProps {
   ) => void;
   words: Word[];
   theme: "light" | "dark";
+  highlightedCells?: string[];
 }
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
@@ -26,10 +27,11 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   handleKeyDown,
   words,
   theme,
+  highlightedCells,
 }) => {
   const startPositions: Record<string, number> = {};
-  words.forEach((w, index) => {
-    startPositions[`${w.row}-${w.col}`] = index + 1;
+  words.forEach((w, idx) => {
+    startPositions[`${w.row}-${w.col}`] = idx + 1;
   });
 
   const activeCells = new Set<string>();
@@ -62,6 +64,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
           const key = `${i}-${j}`;
           const number = startPositions[key];
           const isActive = activeCells.has(key);
+          const isHighlighted = highlightedCells?.includes(key);
 
           return (
             <div
@@ -101,19 +104,22 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                       fontSize: 18,
                       border: "1px solid",
                       borderColor: theme === "light" ? "#555" : "#aaa",
-                      backgroundColor:
-                        theme === "light"
-                          ? "rgba(255,255,255,0.85)"
-                          : "rgba(50,50,50,0.85)",
+                      backgroundColor: isHighlighted
+                        ? theme === "light"
+                          ? "#fffa90"
+                          : "#ffc10790"
+                        : theme === "light"
+                        ? "rgba(255,255,255,0.85)"
+                        : "rgba(50,50,50,0.85)",
                       boxSizing: "border-box",
                       padding: 0,
                       borderRadius: "3px",
                       color: theme === "light" ? "#000" : "#fff",
+                      transition: "background-color 0.3s ease",
                     }}
                   />
                 </>
               ) : (
-                // Unused blocks
                 <div
                   style={{
                     width: "100%",
