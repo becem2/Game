@@ -19,7 +19,8 @@ interface CrosswordGridProps {
   words: Word[];
   theme: "light" | "dark";
   highlightedCells?: string[];
-  cellSize?: number; // ✅ Add dynamic cell size
+  cellSize?: number; // optional to allow mobile scaling
+  isMobile?: boolean;
 }
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
@@ -29,7 +30,8 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   words,
   theme,
   highlightedCells,
-  cellSize = 35, // default value
+  cellSize = 35,
+  isMobile = false,
 }) => {
   const startPositions: Record<string, number> = {};
   words.forEach((w, idx) => {
@@ -46,12 +48,13 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   });
 
   const gap = 2;
+  const adjustedCellSize = isMobile ? Math.min(cellSize, 28) : cellSize;
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${grid[0].length}, ${cellSize}px)`,
+        gridTemplateColumns: `repeat(${grid[0].length}, ${adjustedCellSize}px)`,
         gap: `${gap}px`,
         padding: "10px",
         borderRadius: "10px",
@@ -72,8 +75,8 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
               key={key}
               style={{
                 position: "relative",
-                width: `${cellSize}px`,
-                height: `${cellSize}px`,
+                width: `${adjustedCellSize}px`,
+                height: `${adjustedCellSize}px`,
               }}
             >
               {isActive ? (
@@ -102,7 +105,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                       width: "100%",
                       height: "100%",
                       textAlign: "center",
-                      fontSize: 18,
+                      fontSize: isMobile ? 14 : 16, // smaller font for mobile
                       border: "1px solid",
                       borderColor: theme === "light" ? "#555" : "#aaa",
                       backgroundColor: isHighlighted
