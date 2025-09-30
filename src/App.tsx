@@ -159,7 +159,9 @@ const App: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(() => initializeGrid(GRID_SIZE));
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [cellSize, setCellSize] = useState(35); // default cell size
+  const [showModal, setShowModal] = useState(false);
+  const [completed, setCompleted] = useState(false);
+
   const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
   useEffect(() => {
@@ -167,18 +169,6 @@ const App: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // Adjust cell size to fit screen width on mobile
-  useEffect(() => {
-    if (isMobile) {
-      const padding = 20; // padding around the grid
-      const availableWidth = window.innerWidth - padding * 2;
-      const maxCellSize = Math.floor(availableWidth / GRID_SIZE);
-      setCellSize(maxCellSize);
-    } else {
-      setCellSize(35); // default desktop size
-    }
-  }, [isMobile]);
 
   const activeCells = useMemo(() => {
     const cells = new Set<string>();
@@ -193,6 +183,7 @@ const App: React.FC = () => {
   }, []);
 
   const checkCompletion = (currentGrid: string[][]) => {
+    if (completed) return;
     for (const w of crosswordWords) {
       for (let k = 0; k < w.word.length; k++) {
         const r = w.row + (w.direction === "down" ? k : 0);
@@ -203,7 +194,8 @@ const App: React.FC = () => {
           return;
       }
     }
-    alert("Congratulations! Crossword completed!");
+    setCompleted(true);
+    setShowModal(true);
   };
 
   const handleChange = (row: number, col: number, value: string) => {
@@ -265,14 +257,15 @@ const App: React.FC = () => {
       {/* Grid */}
       <div
         style={{
-          width: isMobile ? "100%" : "95%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           backgroundImage: `url(${theme === "light" ? lightBg : darkBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          borderRadius: "10px",
           padding: isMobile ? "1vw" : "2vw",
-          display: "flex",
-          justifyContent: "center",
+          borderRadius: "10px",
+          width: isMobile ? "100%" : "95%",
         }}
       >
         <CrosswordGrid
@@ -282,7 +275,7 @@ const App: React.FC = () => {
           words={crosswordWords}
           theme={theme}
           highlightedCells={highlightedCells}
-          cellSize={cellSize} // pass dynamic cell size
+          cellSize={isMobile ? 22 : 35}
         />
       </div>
 
@@ -290,16 +283,16 @@ const App: React.FC = () => {
       <div
         style={{
           display: "flex",
-          flexDirection: isMobile ? "row" : "row",
-          justifyContent: "space-between",
-          width: "100%",
-          maxWidth: isMobile ? "100%" : "95%",
+          justifyContent: "center",
+          gap: "2vw",
+          width: "95%",
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
         <div
           style={{
             flex: 1,
-            backgroundColor: theme === "light" ? "#fff" : "#2a2a2a",
+            backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
             padding: "1rem",
             borderRadius: "1rem",
             boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
@@ -322,6 +315,68 @@ const App: React.FC = () => {
           <Clues words={crosswordWords} theme={theme} isMobile={isMobile} />
         </div>
       </div>
+
+      {/* Completion Modal */}
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: theme === "light" ? "#fff" : "#333",
+              padding: "2rem",
+              borderRadius: "1rem",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+              textAlign: "center",
+              maxWidth: "90%",
+            }}
+          >
+            <h2
+              style={{
+                marginBottom: "1rem",
+                fontSize: "1.3rem",
+                color: theme === "light" ? "#000" : "#fff",
+              }}
+            >
+              🎉 Good job! You have completed the CSTAM2.0 crossword 🎉
+            </h2>
+            <p
+              style={{
+                marginBottom: "1.5rem",
+                fontSize: "1rem",
+                color: theme === "light" ? "#333" : "#ddd",
+              }}
+            >
+              Have you guessed the secret word?
+            </p>
+            <button
+              onClick={() => setShowModal(false)}
+              style={{
+                padding: "0.6rem 1.4rem",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                backgroundColor: theme === "light" ? "#333" : "#ddd",
+                color: theme === "light" ? "#fff" : "#000",
+                fontSize: "1rem",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
