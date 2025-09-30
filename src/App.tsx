@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import CrosswordGrid from "./components/CrosswordGrid";
 import Clues from "./components/Clues";
 import lightBg from "./assets/crosswordbg-01.jpg";
@@ -150,7 +150,6 @@ const crosswordWords: Word[] = [
 
 const GRID_SIZE = 20;
 const SECRET_WORD = "CSTS";
-
 const initializeGrid = (size: number) =>
   Array(size)
     .fill("")
@@ -164,7 +163,14 @@ const App: React.FC = () => {
   const [finalWord, setFinalWord] = useState("");
   const [bonusSuccess, setBonusSuccess] = useState(false);
 
-  // Cells to highlight
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
   const activeCells = useMemo(() => {
@@ -235,9 +241,6 @@ const App: React.FC = () => {
     input?.focus();
   };
 
-  // Mobile detection
-  const isMobile = window.innerWidth <= 768;
-
   return (
     <div
       style={{
@@ -251,20 +254,22 @@ const App: React.FC = () => {
         color: theme === "light" ? "#000" : "#fff",
         fontFamily: "Arial, sans-serif",
         boxSizing: "border-box",
-        alignItems: isMobile ? "center" : "flex-start",
+        alignItems: "center",
       }}
     >
+      {/* Grid */}
       <div
         style={{
           flex: 2,
           display: "flex",
           justifyContent: "center",
-          alignItems: "flex-start",
+          alignItems: "center",
           backgroundImage: `url(${theme === "light" ? lightBg : darkBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          padding: "5vw",
+          padding: isMobile ? "2vw" : "5vw",
           borderRadius: "10px",
+          width: isMobile ? "95%" : "auto",
         }}
       >
         <CrosswordGrid
@@ -277,15 +282,15 @@ const App: React.FC = () => {
         />
       </div>
 
+      {/* Clues */}
       <div
         style={{
           flex: 1,
           backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
-          padding: "2rem",
+          padding: "1.5rem",
           borderRadius: "1rem",
           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-          overflowY: "auto",
-          maxHeight: isMobile ? "none" : "96vh",
+          marginTop: isMobile ? "1rem" : 0,
           width: isMobile ? "95%" : "auto",
         }}
       >
