@@ -19,8 +19,7 @@ interface CrosswordGridProps {
   words: Word[];
   theme: "light" | "dark";
   highlightedCells?: string[];
-  cellSize?: number; // optional to allow mobile scaling
-  isMobile?: boolean;
+  cellSize?: number;
 }
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
@@ -30,8 +29,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   words,
   theme,
   highlightedCells,
-  cellSize = 35,
-  isMobile = false,
+  cellSize,
 }) => {
   const startPositions: Record<string, number> = {};
   words.forEach((w, idx) => {
@@ -47,14 +45,14 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     }
   });
 
+  const size = cellSize ?? 35;
   const gap = 2;
-  const adjustedCellSize = isMobile ? Math.min(cellSize, 28) : cellSize;
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${grid[0].length}, ${adjustedCellSize}px)`,
+        gridTemplateColumns: `repeat(${grid[0].length}, ${size}px)`,
         gap: `${gap}px`,
         padding: "10px",
         borderRadius: "10px",
@@ -75,8 +73,8 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
               key={key}
               style={{
                 position: "relative",
-                width: `${adjustedCellSize}px`,
-                height: `${adjustedCellSize}px`,
+                width: `${size}px`,
+                height: `${size}px`,
               }}
             >
               {isActive ? (
@@ -87,7 +85,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                         position: "absolute",
                         top: 2,
                         left: 2,
-                        fontSize: 10,
+                        fontSize: 8,
                         fontWeight: "bold",
                         color: theme === "light" ? "#000" : "#fff",
                       }}
@@ -105,7 +103,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                       width: "100%",
                       height: "100%",
                       textAlign: "center",
-                      fontSize: isMobile ? 2 : 16, // smaller font for mobile
+                      fontSize: 12,
                       border: "1px solid",
                       borderColor: theme === "light" ? "#555" : "#aaa",
                       backgroundColor: isHighlighted
