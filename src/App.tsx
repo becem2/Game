@@ -149,7 +149,6 @@ const crosswordWords: Word[] = [
 ];
 
 const GRID_SIZE = 20;
-const SECRET_WORD = "CSTS";
 
 const initializeGrid = (size: number) =>
   Array(size)
@@ -160,11 +159,7 @@ const App: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(() => initializeGrid(GRID_SIZE));
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [showModal, setShowModal] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [finalWord, setFinalWord] = useState("");
-  const [bonusSuccess, setBonusSuccess] = useState(false);
-
+  const [cellSize, setCellSize] = useState(35); // default cell size
   const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
   useEffect(() => {
@@ -172,6 +167,18 @@ const App: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Adjust cell size to fit screen width on mobile
+  useEffect(() => {
+    if (isMobile) {
+      const padding = 20; // padding around the grid
+      const availableWidth = window.innerWidth - padding * 2;
+      const maxCellSize = Math.floor(availableWidth / GRID_SIZE);
+      setCellSize(maxCellSize);
+    } else {
+      setCellSize(35); // default desktop size
+    }
+  }, [isMobile]);
 
   const activeCells = useMemo(() => {
     const cells = new Set<string>();
@@ -186,7 +193,6 @@ const App: React.FC = () => {
   }, []);
 
   const checkCompletion = (currentGrid: string[][]) => {
-    if (completed) return;
     for (const w of crosswordWords) {
       for (let k = 0; k < w.word.length; k++) {
         const r = w.row + (w.direction === "down" ? k : 0);
@@ -197,8 +203,7 @@ const App: React.FC = () => {
           return;
       }
     }
-    setCompleted(true);
-    setShowModal(true);
+    alert("Congratulations! Crossword completed!");
   };
 
   const handleChange = (row: number, col: number, value: string) => {
@@ -245,7 +250,7 @@ const App: React.FC = () => {
     <div
       style={{
         display: "flex",
-        flexDirection: isMobile ? "column" : "row",
+        flexDirection: "column",
         gap: "2vw",
         padding: "2vw",
         width: "100%",
@@ -254,23 +259,20 @@ const App: React.FC = () => {
         color: theme === "light" ? "#000" : "#fff",
         fontFamily: "Arial, sans-serif",
         boxSizing: "border-box",
-        alignItems: "flex-start",
-        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       {/* Grid */}
       <div
         style={{
-          flex: isMobile ? undefined : 2,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          width: isMobile ? "100%" : "95%",
           backgroundImage: `url(${theme === "light" ? lightBg : darkBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          padding: isMobile ? "1vw" : "2vw",
           borderRadius: "10px",
-          width: isMobile ? "100%" : "60%",
+          padding: isMobile ? "1vw" : "2vw",
+          display: "flex",
+          justifyContent: "center",
         }}
       >
         <CrosswordGrid
@@ -280,24 +282,29 @@ const App: React.FC = () => {
           words={crosswordWords}
           theme={theme}
           highlightedCells={highlightedCells}
+          cellSize={cellSize} // pass dynamic cell size
         />
       </div>
 
       {/* Clues */}
       <div
         style={{
-          flex: isMobile ? undefined : 1,
-          width: isMobile ? "100%" : undefined,
-          backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
+          flexDirection: isMobile ? "row" : "row",
+          justifyContent: "space-between",
+          width: "100%",
+          maxWidth: isMobile ? "100%" : "95%",
         }}
       >
-        <div style={{ width: "100%" }}>
+        <div
+          style={{
+            flex: 1,
+            backgroundColor: theme === "light" ? "#fff" : "#2a2a2a",
+            padding: "1rem",
+            borderRadius: "1rem",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+          }}
+        >
           <button
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             style={{

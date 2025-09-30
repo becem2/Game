@@ -19,6 +19,7 @@ interface CrosswordGridProps {
   words: Word[];
   theme: "light" | "dark";
   highlightedCells?: string[];
+  cellSize?: number; // ✅ Add dynamic cell size
 }
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
@@ -28,6 +29,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   words,
   theme,
   highlightedCells,
+  cellSize = 35, // default value
 }) => {
   const startPositions: Record<string, number> = {};
   words.forEach((w, idx) => {
@@ -43,7 +45,6 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     }
   });
 
-  const cellSize = 35;
   const gap = 2;
 
   return (
