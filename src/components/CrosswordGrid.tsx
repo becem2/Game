@@ -105,7 +105,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                       width: "100%",
                       height: "100%",
                       textAlign: "center",
-                      fontSize: isMobile ? 14 : 16, // smaller font for mobile
+                      fontSize: isMobile ? 8 : 16, // smaller font for mobile
                       border: "1px solid",
                       borderColor: theme === "light" ? "#555" : "#aaa",
                       backgroundColor: isHighlighted
