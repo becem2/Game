@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import CrosswordGrid from "./components/CrosswordGrid";
 import Clues from "./components/Clues";
 import lightBg from "./assets/crosswordbg-01.jpg";
@@ -150,28 +150,30 @@ const crosswordWords: Word[] = [
 
 const GRID_SIZE = 20;
 const SECRET_WORD = "CSTS";
+
 const initializeGrid = (size: number) =>
   Array(size)
-    .fill("")
+    .fill(null)
     .map(() => Array(size).fill(""));
 
 const App: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(() => initializeGrid(GRID_SIZE));
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showModal, setShowModal] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [finalWord, setFinalWord] = useState("");
   const [bonusSuccess, setBonusSuccess] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  // Specific highlighted cells
+  const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
+  // Detect screen resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
   const activeCells = useMemo(() => {
     const cells = new Set<string>();
@@ -245,7 +247,7 @@ const App: React.FC = () => {
     <div
       style={{
         display: "flex",
-        flexDirection: isMobile ? "column" : "row",
+        flexDirection: "column",
         gap: "2vw",
         padding: "2vw",
         width: "100%",
@@ -260,16 +262,15 @@ const App: React.FC = () => {
       {/* Grid */}
       <div
         style={{
-          flex: 2,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           backgroundImage: `url(${theme === "light" ? lightBg : darkBg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          padding: isMobile ? "2vw" : "5vw",
+          padding: isMobile ? "1vw" : "2vw",
           borderRadius: "10px",
-          width: isMobile ? "95%" : "auto",
+          width: isMobile ? "100%" : "95%",
         }}
       >
         <CrosswordGrid
@@ -285,30 +286,37 @@ const App: React.FC = () => {
       {/* Clues */}
       <div
         style={{
-          flex: 1,
-          backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
-          padding: "1.5rem",
-          borderRadius: "1rem",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-          marginTop: isMobile ? "1rem" : 0,
-          width: isMobile ? "95%" : "auto",
+          display: "flex",
+          justifyContent: "center",
+          gap: "2vw",
+          width: "95%",
         }}
       >
-        <button
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        <div
           style={{
-            marginBottom: "1rem",
-            padding: "0.5rem 1rem",
-            cursor: "pointer",
-            borderRadius: "5px",
-            border: "none",
-            backgroundColor: theme === "light" ? "#333" : "#ddd",
-            color: theme === "light" ? "#fff" : "#000",
+            flex: 1,
+            backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
+            padding: "1rem",
+            borderRadius: "1rem",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           }}
         >
-          Switch to {theme === "light" ? "Dark" : "Light"} Theme
-        </button>
-        <Clues words={crosswordWords} theme={theme} />
+          <button
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            style={{
+              marginBottom: "1rem",
+              padding: "0.5rem 1rem",
+              cursor: "pointer",
+              borderRadius: "5px",
+              border: "none",
+              backgroundColor: theme === "light" ? "#333" : "#ddd",
+              color: theme === "light" ? "#fff" : "#000",
+            }}
+          >
+            Switch to {theme === "light" ? "Dark" : "Light"} Theme
+          </button>
+          <Clues words={crosswordWords} theme={theme} isMobile={isMobile} />
+        </div>
       </div>
     </div>
   );
