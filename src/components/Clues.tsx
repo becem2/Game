@@ -11,7 +11,7 @@ interface Word {
 interface CluesProps {
   words?: Word[];
   theme: "light" | "dark";
-  isMobile?: boolean; // <--- add this
+  isMobile?: boolean;
 }
 
 const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
@@ -31,7 +31,7 @@ const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
     <div
       style={{
         display: "flex",
-        flexDirection: isMobile ? "row" : "row", // Across & Down side by side on mobile
+        flexDirection: isMobile ? "column" : "row", // mobile = column, desktop = row
         gap: "1rem",
         fontSize: "0.95rem",
         color: textColor,

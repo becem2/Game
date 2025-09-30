@@ -165,10 +165,8 @@ const App: React.FC = () => {
   const [finalWord, setFinalWord] = useState("");
   const [bonusSuccess, setBonusSuccess] = useState(false);
 
-  // Specific highlighted cells
   const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
-  // Detect screen resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
@@ -247,7 +245,7 @@ const App: React.FC = () => {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: isMobile ? "column" : "row",
         gap: "2vw",
         padding: "2vw",
         width: "100%",
@@ -256,12 +254,14 @@ const App: React.FC = () => {
         color: theme === "light" ? "#000" : "#fff",
         fontFamily: "Arial, sans-serif",
         boxSizing: "border-box",
-        alignItems: "center",
+        alignItems: "flex-start",
+        justifyContent: "center",
       }}
     >
       {/* Grid */}
       <div
         style={{
+          flex: isMobile ? undefined : 2,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -270,7 +270,7 @@ const App: React.FC = () => {
           backgroundPosition: "center",
           padding: isMobile ? "1vw" : "2vw",
           borderRadius: "10px",
-          width: isMobile ? "100%" : "95%",
+          width: isMobile ? "100%" : "60%",
         }}
       >
         <CrosswordGrid
@@ -286,21 +286,18 @@ const App: React.FC = () => {
       {/* Clues */}
       <div
         style={{
+          flex: isMobile ? undefined : 1,
+          width: isMobile ? "100%" : undefined,
+          backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
+          padding: "2rem",
+          borderRadius: "1rem",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
           display: "flex",
           justifyContent: "center",
-          gap: "2vw",
-          width: "95%",
+          alignItems: "flex-start",
         }}
       >
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
-            padding: "1rem",
-            borderRadius: "1rem",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-          }}
-        >
+        <div style={{ width: "100%" }}>
           <button
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
             style={{
