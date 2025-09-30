@@ -11,9 +11,10 @@ interface Word {
 interface CluesProps {
   words?: Word[];
   theme: "light" | "dark";
+  isMobile?: boolean; // <--- add this
 }
 
-const Clues: React.FC<CluesProps> = ({ words, theme }) => {
+const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
   if (!words) return null;
 
   const startPositions: Record<string, number> = {};
@@ -25,15 +26,14 @@ const Clues: React.FC<CluesProps> = ({ words, theme }) => {
   const down = words.filter((w) => w.direction === "down");
 
   const textColor = theme === "light" ? "#333" : "#fff";
-  const isMobile = window.innerWidth <= 768;
 
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: isMobile ? "column" : "row",
+        flexDirection: isMobile ? "row" : "row", // Across & Down side by side on mobile
         gap: "1rem",
-        fontSize: "0.9rem",
+        fontSize: "0.95rem",
         color: textColor,
       }}
     >
