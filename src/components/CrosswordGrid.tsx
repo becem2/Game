@@ -20,6 +20,8 @@ interface CrosswordGridProps {
   theme: "light" | "dark";
   highlightedCells?: string[];
   cellSize?: number;
+  isMobile?: boolean;
+  completedWords?: number[]; // ✅ added
 }
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
@@ -30,6 +32,8 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   theme,
   highlightedCells,
   cellSize,
+  isMobile,
+  completedWords,
 }) => {
   const startPositions: Record<string, number> = {};
   words.forEach((w, idx) => {
@@ -47,6 +51,19 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
 
   const size = cellSize ?? 35;
   const gap = 2;
+
+  const isCompletedCell = (i: number, j: number) => {
+    if (!completedWords) return false;
+    return words.some((w, idx) => {
+      if (!completedWords.includes(idx)) return false;
+      for (let k = 0; k < w.word.length; k++) {
+        const r = w.row + (w.direction === "down" ? k : 0);
+        const c = w.col + (w.direction === "across" ? k : 0);
+        if (r === i && c === j) return true;
+      }
+      return false;
+    });
+  };
 
   return (
     <div
@@ -67,6 +84,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
           const number = startPositions[key];
           const isActive = activeCells.has(key);
           const isHighlighted = highlightedCells?.includes(key);
+          const completedCell = isCompletedCell(i, j);
 
           return (
             <div
@@ -103,10 +121,12 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                       width: "100%",
                       height: "100%",
                       textAlign: "center",
-                      fontSize: 12,
+                      fontSize: isMobile ? 8 : 16,
                       border: "1px solid",
                       borderColor: theme === "light" ? "#555" : "#aaa",
-                      backgroundColor: isHighlighted
+                      backgroundColor: completedCell
+                        ? "#4CAF50"
+                        : isHighlighted
                         ? theme === "light"
                           ? "#fffa90"
                           : "#ffc10790"

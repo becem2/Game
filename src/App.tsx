@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CrosswordGrid from "./components/CrosswordGrid";
 import Clues from "./components/Clues";
-import lightBg from "./assets/crosswordbg-01.jpg";
-import darkBg from "./assets/crosswordbg_light-01.jpg";
 
 interface Word {
   word: string;
@@ -153,15 +151,18 @@ const SECRET_WORD = "CSTS";
 
 const initializeGrid = (size: number) =>
   Array(size)
-    .fill(null)
+    .fill("")
     .map(() => Array(size).fill(""));
 
 const App: React.FC = () => {
   const [grid, setGrid] = useState<string[][]>(() => initializeGrid(GRID_SIZE));
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [completedWords, setCompletedWords] = useState<number[]>([]);
   const [completed, setCompleted] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [secretGuess, setSecretGuess] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const highlightedCells = ["13-7", "13-10", "13-2", "13-12"];
 
@@ -171,20 +172,30 @@ const App: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const checkCompletion = (currentGrid: string[][]) => {
-    if (completed) return;
-    for (const w of crosswordWords) {
+  const checkWordCompletion = (currentGrid: string[][]) => {
+    const completedIndices: number[] = [];
+
+    crosswordWords.forEach((w, idx) => {
+      let isComplete = true;
       for (let k = 0; k < w.word.length; k++) {
         const r = w.row + (w.direction === "down" ? k : 0);
         const c = w.col + (w.direction === "across" ? k : 0);
         if (
           (currentGrid[r]?.[c] ?? "").toUpperCase() !== w.word[k].toUpperCase()
-        )
-          return;
+        ) {
+          isComplete = false;
+          break;
+        }
       }
+      if (isComplete) completedIndices.push(idx);
+    });
+
+    setCompletedWords(completedIndices);
+
+    if (!completed && completedIndices.length === crosswordWords.length) {
+      setCompleted(true);
+      setShowModal(true);
     }
-    setCompleted(true);
-    setShowModal(true);
   };
 
   const handleChange = (row: number, col: number, value: string) => {
@@ -192,7 +203,7 @@ const App: React.FC = () => {
     setGrid((prev) => {
       const newGrid = prev.map((r) => [...r]);
       newGrid[row][col] = upperValue;
-      checkCompletion(newGrid);
+      checkWordCompletion(newGrid);
       return newGrid;
     });
   };
@@ -245,11 +256,10 @@ const App: React.FC = () => {
         alignItems: "center",
       }}
     >
-      {/* Main layout: grid + clues */}
       <div
         style={{
           display: "flex",
-          flexDirection: isMobile ? "column" : "row", // desktop side by side, mobile stacked
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "center",
           alignItems: isMobile ? "center" : "flex-start",
           gap: "2vw",
@@ -257,13 +267,11 @@ const App: React.FC = () => {
           maxWidth: "1200px",
         }}
       >
-        {/* Grid */}
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            backgroundImage: `url(${theme === "light" ? lightBg : darkBg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             padding: isMobile ? 0 : "2vw",
@@ -280,10 +288,11 @@ const App: React.FC = () => {
             theme={theme}
             highlightedCells={highlightedCells}
             cellSize={isMobile ? mobileCellSize : 35}
+            isMobile={isMobile}
+            completedWords={completedWords}
           />
         </div>
 
-        {/* Clues */}
         <div
           style={{
             flex: 1,
@@ -291,7 +300,7 @@ const App: React.FC = () => {
             padding: "1rem",
             borderRadius: "1rem",
             boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-            marginTop: isMobile ? "1rem" : 0, // add spacing on mobile
+            marginTop: isMobile ? "1rem" : 0,
           }}
         >
           <button
@@ -308,11 +317,16 @@ const App: React.FC = () => {
           >
             Switch to {theme === "light" ? "Dark" : "Light"} Theme
           </button>
-          <Clues words={crosswordWords} theme={theme} isMobile={isMobile} />
+          <Clues
+            words={crosswordWords}
+            theme={theme}
+            isMobile={isMobile}
+            completedWords={completedWords}
+          />
         </div>
       </div>
 
-      {/* Completion Modal */}
+      {/* Secret word modal with smooth fade-in */}
       {showModal && (
         <div
           style={{
@@ -326,6 +340,8 @@ const App: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 1000,
+            opacity: 1,
+            animation: "fadeIn 0.5s ease",
           }}
         >
           <div
@@ -334,16 +350,107 @@ const App: React.FC = () => {
               padding: "2rem",
               borderRadius: "1rem",
               textAlign: "center",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
               color: theme === "light" ? "#000" : "#fff",
               maxWidth: "90vw",
+              transform: "scale(0.8)",
+              animation: "scaleUp 0.5s forwards",
             }}
           >
-            <h2>Good job!</h2>
+            <h2 style={{ marginBottom: "1rem" }}>🎉 Good job! 🎉</h2>
             <p>You have completed the CSTAM2.0 crossword.</p>
             <p>Have you guessed the secret word?</p>
+
+            <input
+              type="text"
+              value={secretGuess}
+              onChange={(e) => setSecretGuess(e.target.value)}
+              placeholder="Enter secret word"
+              style={{
+                padding: "0.5rem",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                marginTop: "1rem",
+                width: "80%",
+              }}
+            />
+
+            <div style={{ marginTop: "1rem" }}>
+              <button
+                onClick={() => {
+                  if (secretGuess.trim().toUpperCase() === SECRET_WORD) {
+                    setShowModal(false);
+                    setShowSuccessModal(true);
+                  } else {
+                    alert("Wrong guess, try again!");
+                  }
+                }}
+                style={{
+                  marginRight: "1rem",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "5px",
+                  border: "none",
+                  cursor: "pointer",
+                  backgroundColor: theme === "light" ? "#333" : "#ddd",
+                  color: theme === "light" ? "#fff" : "#000",
+                  fontWeight: "bold",
+                }}
+              >
+                Submit
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "5px",
+                  border: "none",
+                  cursor: "pointer",
+                  backgroundColor: "#888",
+                  color: "#fff",
+                  fontWeight: "bold",
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success modal */}
+      {showSuccessModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+            animation: "fadeIn 0.5s ease",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: theme === "light" ? "#fff" : "#2a2a2a",
+              padding: "2rem",
+              borderRadius: "1rem",
+              textAlign: "center",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+              color: theme === "light" ? "#000" : "#fff",
+              maxWidth: "90vw",
+              transform: "scale(0.8)",
+              animation: "scaleUp 0.5s forwards",
+            }}
+          >
+            <h2>🎉 Congratulations! 🎉</h2>
+            <p>You guessed the secret word correctly!</p>
             <button
-              onClick={() => setShowModal(false)}
+              onClick={() => setShowSuccessModal(false)}
               style={{
                 marginTop: "1rem",
                 padding: "0.5rem 1rem",
@@ -352,6 +459,7 @@ const App: React.FC = () => {
                 cursor: "pointer",
                 backgroundColor: theme === "light" ? "#333" : "#ddd",
                 color: theme === "light" ? "#fff" : "#000",
+                fontWeight: "bold",
               }}
             >
               Close
@@ -359,6 +467,18 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Animations */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };

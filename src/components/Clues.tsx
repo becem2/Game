@@ -11,10 +11,16 @@ interface Word {
 interface CluesProps {
   words?: Word[];
   theme: "light" | "dark";
-  isMobile: boolean; // Add isMobile prop
+  isMobile: boolean;
+  completedWords?: number[]; // ✅ added prop to track completed words
 }
 
-const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
+const Clues: React.FC<CluesProps> = ({
+  words,
+  theme,
+  isMobile,
+  completedWords,
+}) => {
   if (!words) return null;
 
   const startPositions: Record<string, number> = {};
@@ -54,10 +60,15 @@ const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
         <ul style={{ paddingLeft: "0.5rem", listStyle: "none", margin: 0 }}>
           {across.map((w, idx) => {
             const number = startPositions[`${w.row}-${w.col}`];
+            const isCompleted = completedWords?.includes(words.indexOf(w));
             return (
               <li
                 key={idx}
-                style={{ marginBottom: "0.5rem", color: textColor }}
+                style={{
+                  marginBottom: "0.5rem",
+                  color: textColor,
+                  textDecoration: isCompleted ? "line-through" : "none", // ✅ line-through completed
+                }}
               >
                 <strong>{number}.</strong> {w.clue}
               </li>
@@ -81,10 +92,15 @@ const Clues: React.FC<CluesProps> = ({ words, theme, isMobile }) => {
         <ul style={{ paddingLeft: "0.5rem", listStyle: "none", margin: 0 }}>
           {down.map((w, idx) => {
             const number = startPositions[`${w.row}-${w.col}`];
+            const isCompleted = completedWords?.includes(words.indexOf(w));
             return (
               <li
                 key={idx}
-                style={{ marginBottom: "0.5rem", color: textColor }}
+                style={{
+                  marginBottom: "0.5rem",
+                  color: textColor,
+                  textDecoration: isCompleted ? "line-through" : "none", // ✅ line-through completed
+                }}
               >
                 <strong>{number}.</strong> {w.clue}
               </li>
