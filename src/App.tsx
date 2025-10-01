@@ -15,138 +15,138 @@ const crosswordWords: Word[] = [
     word: "IMPACT",
     clue: "Strong effect or influence",
     row: 0,
-    col: 0,
+    col: 1,
     direction: "across",
   },
   {
     word: "MEETING",
     clue: "Gathering of people to discuss something",
     row: 0,
-    col: 1,
+    col: 2,
     direction: "down",
   },
   {
     word: "TECHNICAL",
     clue: "Specialized or practical",
     row: 2,
-    col: 0,
+    col: 1,
     direction: "across",
   },
   {
     word: "NETWORKING",
     clue: "Building professional or digital connections",
     row: 2,
-    col: 4,
+    col: 5,
     direction: "down",
   },
   {
     word: "MENTORING",
     clue: "Guiding and advising someone less experienced",
     row: 2,
-    col: 13,
+    col: 14,
     direction: "down",
   },
   {
     word: "TUNISIAN",
     clue: "Person from Tunisia",
     row: 4,
-    col: 4,
+    col: 5,
     direction: "across",
   },
   {
     word: "COMPUTING",
     clue: "Act of using a computer to process information",
     row: 6,
-    col: 3,
+    col: 4,
     direction: "across",
   },
   {
     word: "SYMPOSIUM",
     clue: "Formal meeting where experts discuss a topic",
     row: 8,
-    col: 2,
+    col: 3,
     direction: "down",
   },
   {
     word: "COMPUTER",
     clue: "Machine for processing data",
     row: 8,
-    col: 7,
+    col: 8,
     direction: "down",
   },
   {
     word: "IEEE",
     clue: "Engineering organization for electrical and electronics engineers",
     row: 8,
-    col: 13,
+    col: 14,
     direction: "across",
   },
   {
     word: "INNOVATION",
     clue: "Introduction of new ideas or methods",
     row: 9,
-    col: 4,
+    col: 5,
     direction: "across",
   },
   {
     word: "TUNISIA",
     clue: "North African country on the Mediterranean",
     row: 9,
-    col: 10,
+    col: 11,
     direction: "down",
   },
   {
     word: "GLOBAL",
     clue: "Worldwide or all-encompassing",
     row: 11,
-    col: 14,
+    col: 15,
     direction: "down",
   },
   {
     word: "SOCIETY",
     clue: "Organized group sharing common rules",
     row: 13,
-    col: 2,
+    col: 3,
     direction: "across",
   },
   {
     word: "INDIAN",
     clue: "Person from the second-most populous country",
     row: 13,
-    col: 5,
+    col: 6,
     direction: "down",
   },
   {
     word: "CLOUD",
     clue: "Visible mass of condensed water in the sky, also online storage metaphor",
     row: 13,
-    col: 12,
+    col: 13,
     direction: "across",
   },
   {
     word: "ANNUAL",
     clue: "Happening once every year",
     row: 15,
-    col: 10,
+    col: 11,
     direction: "across",
   },
   {
     word: "NANO",
     clue: "Prefix meaning one-billionth",
     row: 15,
-    col: 11,
+    col: 12,
     direction: "down",
   },
   {
     word: "MICRO",
     clue: "Opposite of MACRO",
     row: 18,
-    col: 7,
+    col: 8,
     direction: "across",
   },
 ];
 
-const GRID_SIZE = 20;
+const GRID_SIZE = 19;
 const SECRET_WORD = "CSTS";
 
 const initializeGrid = (size: number) =>
@@ -243,90 +243,104 @@ const App: React.FC = () => {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "2vw",
-        padding: "2vw",
         width: "100%",
         minHeight: "100vh",
-        backgroundColor: theme === "light" ? "#f0f2f5" : "#1e1e1e",
-        color: theme === "light" ? "#000" : "#fff",
         fontFamily: "Arial, sans-serif",
         boxSizing: "border-box",
+        backgroundColor: theme === "light" ? "#f0f2f5" : "#1e1e1e",
+        color: theme === "light" ? "#000" : "#fff",
+        display: "flex",
+        flexDirection: "column",
         alignItems: "center",
+        padding: "2vw",
+        gap: "2vw",
       }}
     >
+      {/* Blur wrapper */}
       <div
         style={{
           display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          justifyContent: "center",
-          alignItems: isMobile ? "center" : "flex-start",
+          flexDirection: "column",
           gap: "2vw",
+          transition: "filter 0.3s ease",
+          filter: showModal || showSuccessModal ? "blur(8px)" : "none",
+          pointerEvents: showModal || showSuccessModal ? "none" : "auto",
           width: "100%",
-          maxWidth: "1200px",
+          alignItems: "center",
         }}
       >
         <div
           style={{
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             justifyContent: "center",
-            alignItems: "center",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            padding: isMobile ? 0 : "2vw",
-            borderRadius: "10px",
-            width: isMobile ? "100vw" : "auto",
-            overflowX: "auto",
+            alignItems: isMobile ? "center" : "flex-start",
+            gap: "2vw",
+            width: "100%",
+            maxWidth: "1200px",
           }}
         >
-          <CrosswordGrid
-            grid={grid}
-            onChange={handleChange}
-            handleKeyDown={handleKeyDown}
-            words={crosswordWords}
-            theme={theme}
-            highlightedCells={highlightedCells}
-            cellSize={isMobile ? mobileCellSize : 35}
-            isMobile={isMobile}
-            completedWords={completedWords}
-          />
-        </div>
-
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
-            padding: "1rem",
-            borderRadius: "1rem",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-            marginTop: isMobile ? "1rem" : 0,
-          }}
-        >
-          <button
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          <div
             style={{
-              marginBottom: "1rem",
-              padding: "0.5rem 1rem",
-              cursor: "pointer",
-              borderRadius: "5px",
-              border: "none",
-              backgroundColor: theme === "light" ? "#333" : "#ddd",
-              color: theme === "light" ? "#fff" : "#000",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              padding: isMobile ? 0 : "2vw",
+              borderRadius: "10px",
+              width: isMobile ? "100vw" : "auto",
+              overflowX: "auto",
             }}
           >
-            Switch to {theme === "light" ? "Dark" : "Light"} Theme
-          </button>
-          <Clues
-            words={crosswordWords}
-            theme={theme}
-            isMobile={isMobile}
-            completedWords={completedWords}
-          />
+            <CrosswordGrid
+              grid={grid}
+              onChange={handleChange}
+              handleKeyDown={handleKeyDown}
+              words={crosswordWords}
+              theme={theme}
+              highlightedCells={highlightedCells}
+              cellSize={isMobile ? mobileCellSize : 35}
+              isMobile={isMobile}
+              completedWords={completedWords}
+            />
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: theme === "light" ? "#ffffff" : "#2a2a2a",
+              padding: "1rem",
+              borderRadius: "1rem",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+              marginTop: isMobile ? "1rem" : 0,
+            }}
+          >
+            <button
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              style={{
+                marginBottom: "1rem",
+                padding: "0.5rem 1rem",
+                cursor: "pointer",
+                borderRadius: "5px",
+                border: "none",
+                backgroundColor: theme === "light" ? "#333" : "#ddd",
+                color: theme === "light" ? "#fff" : "#000",
+              }}
+            >
+              Switch to {theme === "light" ? "Dark" : "Light"} Theme
+            </button>
+            <Clues
+              words={crosswordWords}
+              theme={theme}
+              isMobile={isMobile}
+              completedWords={completedWords}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Secret word modal with smooth fade-in */}
+      {/* Secret word modal */}
       {showModal && (
         <div
           style={{
@@ -340,8 +354,6 @@ const App: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 1000,
-            opacity: 1,
-            animation: "fadeIn 0.5s ease",
           }}
         >
           <div
@@ -350,14 +362,12 @@ const App: React.FC = () => {
               padding: "2rem",
               borderRadius: "1rem",
               textAlign: "center",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
               color: theme === "light" ? "#000" : "#fff",
               maxWidth: "90vw",
-              transform: "scale(0.8)",
-              animation: "scaleUp 0.5s forwards",
             }}
           >
-            <h2 style={{ marginBottom: "1rem" }}>🎉 Good job! 🎉</h2>
+            <h2>Good job!</h2>
             <p>You have completed the CSTAM2.0 crossword.</p>
             <p>Have you guessed the secret word?</p>
 
@@ -393,7 +403,6 @@ const App: React.FC = () => {
                   cursor: "pointer",
                   backgroundColor: theme === "light" ? "#333" : "#ddd",
                   color: theme === "light" ? "#fff" : "#000",
-                  fontWeight: "bold",
                 }}
               >
                 Submit
@@ -407,7 +416,6 @@ const App: React.FC = () => {
                   cursor: "pointer",
                   backgroundColor: "#888",
                   color: "#fff",
-                  fontWeight: "bold",
                 }}
               >
                 Close
@@ -431,7 +439,6 @@ const App: React.FC = () => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: 1000,
-            animation: "fadeIn 0.5s ease",
           }}
         >
           <div
@@ -440,15 +447,13 @@ const App: React.FC = () => {
               padding: "2rem",
               borderRadius: "1rem",
               textAlign: "center",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
               color: theme === "light" ? "#000" : "#fff",
               maxWidth: "90vw",
-              transform: "scale(0.8)",
-              animation: "scaleUp 0.5s forwards",
             }}
           >
-            <h2>🎉 Congratulations! 🎉</h2>
-            <p>You guessed the secret word correctly!</p>
+            <h2>Good work!</h2>
+            <p>You guessed the secret word correctly 🎉</p>
             <button
               onClick={() => setShowSuccessModal(false)}
               style={{
@@ -459,7 +464,6 @@ const App: React.FC = () => {
                 cursor: "pointer",
                 backgroundColor: theme === "light" ? "#333" : "#ddd",
                 color: theme === "light" ? "#fff" : "#000",
-                fontWeight: "bold",
               }}
             >
               Close
@@ -467,18 +471,6 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scaleUp {
-          from { transform: scale(0.8); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 };
